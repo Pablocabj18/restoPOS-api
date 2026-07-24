@@ -319,7 +319,7 @@ const bootstrapHandler = async (req: Request, res: Response) => {
 
   const runner = AppDataSource.createQueryRunner()
   await runner.connect()
-  await runner.startTransaction('SERIALIZABLE')
+  await runner.startTransaction('REPEATABLE READ')
   try {
     const restaurantRepo = runner.manager.getRepository(Restaurant)
     const userRepo = runner.manager.getRepository(User)
