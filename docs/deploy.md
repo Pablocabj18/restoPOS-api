@@ -11,13 +11,17 @@ DB_USERNAME=...
 DB_PASSWORD=...
 DB_DATABASE=...
 DB_SYNCHRONIZE=false
+DB_BOOTSTRAP_SCHEMA=false
+DB_SSL=true
 JWT_SECRET=<at least 32 random characters>
 CORS_ORIGINS=https://pos.example.com,https://admin.example.com
 ```
 
-Production forcibly disables TypeORM synchronization even if
-`DB_SYNCHRONIZE=true`. Apply reviewed migrations before starting the new server
-version. `JWT_SECRET` is mandatory and startup fails without it. `CORS_ORIGINS`
+For a brand-new empty database only, set `DB_BOOTSTRAP_SCHEMA=true` for the
+first successful boot, then immediately change it to `false` and redeploy.
+Never leave schema synchronization enabled for routine production deploys.
+Apply reviewed migrations before starting later server versions.
+`JWT_SECRET` is mandatory and startup fails without it. `CORS_ORIGINS`
 is a comma-separated allowlist shared by HTTP and Socket.IO.
 
 Recommended rollout:

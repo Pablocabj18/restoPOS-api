@@ -21,6 +21,9 @@ import { CustomerOrderRequest, CustomerOrderRequestItem } from "./entities/Custo
 import { PublicQrAndCustomerOrderRequests1784800000000 } from "./migrations/1784800000000-PublicQrAndCustomerOrderRequests"
 import 'dotenv/config'
 
+const bootstrapSchema = process.env.DB_BOOTSTRAP_SCHEMA === 'true'
+const useSsl = process.env.DB_SSL === 'true'
+
 export const AppDataSource = new DataSource({
   type: "mysql",
   host: process.env.DB_HOST || "localhost",
@@ -28,7 +31,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_DATABASE || "resto_db",
-  synchronize: process.env.NODE_ENV === 'production' ? false : process.env.DB_SYNCHRONIZE !== 'false',
+  synchronize: bootstrapSchema || (process.env.NODE_ENV !== 'production' && process.env.DB_SYNCHRONIZE !== 'false'),
   logging: false,
   entities: [User, Restaurant, AuthChallenge, Reservation, Payment, CustomerOrderRequest, CustomerOrderRequestItem, Category, Product, Table, TableSession, Order, OrderItem],
   migrations: [
@@ -40,9 +43,14 @@ export const AppDataSource = new DataSource({
     PaymentsAndTableAdministration1784700000000,
     PublicQrAndCustomerOrderRequests1784800000000
   ],
-  // extra: {
-  //   allowPublicKeyRetrieval: true,
-  // },
+  extra: useSsl
+    ? {
+        ssl: {
+          minVersion: 'TLSv1.2',
+          rejectUnauthorized: true
+        }
+      }
+    : undefined,
 })
 
 // Seed data function

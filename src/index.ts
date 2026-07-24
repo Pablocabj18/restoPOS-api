@@ -103,14 +103,6 @@ io.on('connection', socket => {
   }
 })
 
-// Initialize database and seed
-AppDataSource.initialize()
-  .then(async () => {
-    console.log("DB conectada 🚀")
-    await seedData()
-  })
-  .catch((error) => console.error("DB Error:", error))
-
 // ============ MIDDLEWARE ============
 const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization']
@@ -2229,6 +2221,19 @@ app.get('/health', (req: Request, res: Response) => {
 
 const PORT = process.env.PORT || 3000
 const HOST = process.env.HOST || '0.0.0.0'
-httpServer.listen(Number(PORT), HOST, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT} 🎉`)
-})
+
+const startServer = async () => {
+  try {
+    await AppDataSource.initialize()
+    console.log("DB conectada 🚀")
+    await seedData()
+    httpServer.listen(Number(PORT), HOST, () => {
+      console.log(`Servidor corriendo en http://${HOST}:${PORT} 🎉`)
+    })
+  } catch (error) {
+    console.error("No se pudo iniciar la API:", error)
+    process.exit(1)
+  }
+}
+
+void startServer()
